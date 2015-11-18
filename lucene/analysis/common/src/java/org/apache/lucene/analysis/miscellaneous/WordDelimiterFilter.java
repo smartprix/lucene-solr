@@ -25,6 +25,7 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
+import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.util.ArrayUtil;
 import org.apache.lucene.util.AttributeSource;
@@ -167,6 +168,7 @@ public final class WordDelimiterFilter extends TokenFilter {
   private final OffsetAttribute offsetAttribute = addAttribute(OffsetAttribute.class);
   private final PositionIncrementAttribute posIncAttribute = addAttribute(PositionIncrementAttribute.class);
   private final TypeAttribute typeAttribute = addAttribute(TypeAttribute.class);
+  private final KeywordAttribute keywordAttr = addAttribute(KeywordAttribute.class);
 
   // used for iterating word delimiter breaks
   private final WordDelimiterIterator iterator;
@@ -242,9 +244,10 @@ public final class WordDelimiterFilter extends TokenFilter {
         iterator.setText(termBuffer, termLength);
         iterator.next();
 
-        // word of no delimiters, or protected word: just return it
+        // word of no delimiters, protected word, or keyword: just return it
         if ((iterator.current == 0 && iterator.end == termLength) ||
-            (protWords != null && protWords.contains(termBuffer, 0, termLength))) {
+            (protWords != null && protWords.contains(termBuffer, 0, termLength)) ||
+            (keywordAttr.isKeyword())) {
           posIncAttribute.setPositionIncrement(accumPosInc);
           accumPosInc = 0;
           first = false;
