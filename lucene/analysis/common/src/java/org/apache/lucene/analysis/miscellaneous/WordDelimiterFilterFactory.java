@@ -46,6 +46,7 @@ import static org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter.*;
  *             preserveOriginal="0" splitOnNumerics="1" splitOnCaseChange="1"
  *             catenateWords="0" catenateNumbers="0" catenateAll="0"
  *             generateWordParts="1" generateNumberParts="1" stemEnglishPossessive="1"
+ *             splitKeywordTokens="0"
  *             types="wdfftypes.txt" /&gt;
  *   &lt;/analyzer&gt;
  * &lt;/fieldType&gt;</pre>
@@ -91,6 +92,19 @@ public class WordDelimiterFilterFactory extends TokenFilterFactory implements Re
     if (getInt(args, "stemEnglishPossessive", 1) != 0) {
       flags |= STEM_ENGLISH_POSSESSIVE;
     }
+    if(luceneMatchVersion.onOrAfter(Version.LUCENE_6_0_0)) {
+      // splitKeywordTokens is false by default for LUCENE >= 6.0.0
+      if (getInt(args, "splitKeywordTokens", 0) != 0) {
+        flags |= SPLIT_KEYWORD_TOKENS;
+      }
+    }
+    else {
+      // splitKeywordTokens is true by default for LUCENE < 6.0.0
+      if (getInt(args, "splitKeywordTokens", 1) != 0) {
+        flags |= SPLIT_KEYWORD_TOKENS;
+      }
+    }
+    
     wordFiles = get(args, PROTECTED_TOKENS);
     types = get(args, TYPES);
     this.flags = flags;

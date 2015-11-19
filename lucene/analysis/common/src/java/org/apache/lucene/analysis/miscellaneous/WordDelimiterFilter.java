@@ -157,6 +157,11 @@ public final class WordDelimiterFilter extends TokenFilter {
   public static final int STEM_ENGLISH_POSSESSIVE = 256;
   
   /**
+   * If not set, causes keyword tokens to be ignored
+   */
+  public static final int SPLIT_KEYWORD_TOKENS = 512;
+  
+  /**
    * If not null is the set of tokens to protect from being delimited
    *
    */
@@ -244,10 +249,10 @@ public final class WordDelimiterFilter extends TokenFilter {
         iterator.setText(termBuffer, termLength);
         iterator.next();
 
-        // word of no delimiters, protected word, or keyword: just return it
+        // word of no delimiters, protected word, or keyword (provided splitKeywordTokens is not set): just return it
         if ((iterator.current == 0 && iterator.end == termLength) ||
             (protWords != null && protWords.contains(termBuffer, 0, termLength)) ||
-            (keywordAttr.isKeyword())) {
+            (!has(SPLIT_KEYWORD_TOKENS) && keywordAttr.isKeyword())) {
           posIncAttribute.setPositionIncrement(accumPosInc);
           accumPosInc = 0;
           first = false;
